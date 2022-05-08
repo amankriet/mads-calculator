@@ -38,7 +38,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
 
     @Override
     public int getItemCount() {
-        return historyDataArrayList.size();
+        return historyDataArrayList!=null?historyDataArrayList.size():0;
     }
 
     public static class HistoryViewHolder extends RecyclerView.ViewHolder {

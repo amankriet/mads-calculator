@@ -1,6 +1,8 @@
 package com.amankriet.madscalculator.models;
 
-public class HistoryData {
+import java.io.Serializable;
+
+public class HistoryData implements Serializable {
 
     String operation;
     String result;

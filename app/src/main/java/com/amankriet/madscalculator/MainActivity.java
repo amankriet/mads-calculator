@@ -9,12 +9,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.amankriet.madscalculator.databinding.ActivityMainBinding;
 import com.amankriet.madscalculator.models.HistoryData;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     public String result = "";
     private ActivityMainBinding binding;
     public ArrayList<HistoryData> historyDataArrayList;
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,6 +183,15 @@ public class MainActivity extends AppCompatActivity {
             historyDataArrayList.remove(0);
         }
         historyDataArrayList.add(new HistoryData(ops, result));
+        Map<String, ArrayList<HistoryData>> calculatorHistoryData = new HashMap<>();
+        calculatorHistoryData.put(HISTORY_ARRAYLIST, historyDataArrayList);
+        db.collection("calculator-history")
+                .add(calculatorHistoryData)
+                .addOnSuccessListener(documentReference ->
+                        Log.d(TAG, "DocumentSnapshot added with ID: "
+                                + documentReference.getId()))
+                .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+
         binding.textViewResult.setText(result);
         processed = true;
     }

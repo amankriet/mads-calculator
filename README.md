@@ -18,6 +18,8 @@
 1. Unit Tests
 2. Sync history for each user using cloud db
 
-Demo video url - https://drive.google.com/open?id=1-uxbGTl2oZq78WLgFPy0V3VQRIuJj9my&authuser=amankriet%40gmail.com&usp=drive_fs
-Signed Apk link (Production phase pending on Google console) 
+## Demo video url 
+- https://drive.google.com/open?id=1-uxbGTl2oZq78WLgFPy0V3VQRIuJj9my&authuser=amankriet%40gmail.com&usp=drive_fs
+</br></br>
+## Signed Apk link (Production phase pending on Google console) 
   - https://drive.google.com/open?id=1-wHUc9oPHEE50HjyGL-3L4iRAV2Q_Muh&authuser=amankriet%40gmail.com&usp=drive_fs

@@ -14,7 +14,7 @@
     2. Firebase
     3. Figma
 
-#Pending work:
+# Pending work:
 1. Unit Tests
 2. Sync history for each user using cloud db
 

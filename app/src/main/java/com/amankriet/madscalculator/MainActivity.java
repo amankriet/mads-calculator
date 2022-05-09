@@ -9,14 +9,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.amankriet.madscalculator.databinding.ActivityMainBinding;
 import com.amankriet.madscalculator.models.HistoryData;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -32,12 +30,15 @@ public class MainActivity extends AppCompatActivity {
     private final String OPERATOR = "Operator";
     private final String DELETE = "Delete";
     public static String HISTORY_ARRAYLIST = "HistoryArrayList";
+    public static String CALCULATION_HISTORY = "History";
     private boolean processed = false;
     public String operations = "";
     public String result = "";
     private ActivityMainBinding binding;
     public ArrayList<HistoryData> historyDataArrayList;
+    Map<String, ArrayList<HistoryData>> calculatorHistoryData = new HashMap<>();
 
+    private FirebaseAuth mAuth;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(view);
 
         historyDataArrayList = new ArrayList<>();
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -66,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
                     (ArrayList) historyDataArrayList);
             startActivity(historyIntent);
             return true;
+        } else if(item.getItemId() == R.id.menu_logout) {
+            mAuth.signOut();
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -149,8 +154,10 @@ public class MainActivity extends AppCompatActivity {
             int num2 = Integer.parseInt(matcher.group().split("×")[1]);
             int res = num1*num2;
             operations = operations.replace(matcher.group(), String.valueOf(res));
+            matcher = patternMultiply.matcher(operations);
         }
 
+        Log.d(TAG, "calculateMADS: "+operations);
         matcher = patternAdd.matcher(operations);
         while(matcher.find()) {
             Log.d(TAG, "calculateMADS: "+matcher.group());
@@ -158,8 +165,10 @@ public class MainActivity extends AppCompatActivity {
             int num2 = Integer.parseInt(matcher.group().split("\\+")[1]);
             int res = num1+num2;
             operations = operations.replace(matcher.group(), String.valueOf(res));
+            matcher = patternAdd.matcher(operations);
         }
 
+        Log.d(TAG, "calculateMADS: "+operations);
         matcher = patternDivide.matcher(operations);
         while(matcher.find()) {
             Log.d(TAG, "calculateMADS: "+matcher.group());
@@ -167,8 +176,10 @@ public class MainActivity extends AppCompatActivity {
             int num2 = Integer.parseInt(matcher.group().split("÷")[1]);
             int res = Math.floorDiv(num1, num2);
             operations = operations.replace(matcher.group(), String.valueOf(res));
+            matcher = patternDivide.matcher(operations);
         }
 
+        Log.d(TAG, "calculateMADS: "+operations);
         matcher = patternSub.matcher(operations);
         while(matcher.find()) {
             Log.d(TAG, "calculateMADS: "+matcher.group());
@@ -176,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
             int num2 = Integer.parseInt(matcher.group().split("-")[1]);
             int res = num1-num2;
             operations = operations.replace(matcher.group(), String.valueOf(res));
+            matcher = patternSub.matcher(operations);
         }
         result = operations;
 
@@ -183,14 +195,23 @@ public class MainActivity extends AppCompatActivity {
             historyDataArrayList.remove(0);
         }
         historyDataArrayList.add(new HistoryData(ops, result));
-        Map<String, ArrayList<HistoryData>> calculatorHistoryData = new HashMap<>();
-        calculatorHistoryData.put(HISTORY_ARRAYLIST, historyDataArrayList);
-        db.collection("calculator-history")
-                .add(calculatorHistoryData)
-                .addOnSuccessListener(documentReference ->
-                        Log.d(TAG, "DocumentSnapshot added with ID: "
-                                + documentReference.getId()))
-                .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+
+        String dbCollectionName = HISTORY_ARRAYLIST;
+        FirebaseUser user = mAuth.getCurrentUser();
+        if(user != null && user.getEmail() != null) {
+            dbCollectionName = user.getEmail();
+        }
+        calculatorHistoryData.put(dbCollectionName, historyDataArrayList);
+
+        db.collection(CALCULATION_HISTORY)
+                .document(HISTORY_ARRAYLIST).set(calculatorHistoryData);
+
+//        db.collection(dbCollectionName)
+//                .add(calculatorHistoryData)
+//                .addOnSuccessListener(documentReference ->
+//                        Log.d(TAG, "DocumentSnapshot added with ID: "
+//                                + documentReference.getId()))
+//                .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
 
         binding.textViewResult.setText(result);
         processed = true;

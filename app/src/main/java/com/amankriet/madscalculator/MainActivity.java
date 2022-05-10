@@ -32,12 +32,14 @@ public class MainActivity extends AppCompatActivity {
 
     public static String CALCULATOR_HISTORY_LIST = "CalculatorHistoryList";
     public static String CALCULATION_HISTORY = "calculator-history";
-    private final String TAG = MainActivity.class.getSimpleName();
+    public static final String TAG = MainActivity.class.getSimpleName();
     private final String NUMBER = "Number";
     private final String OPERATOR = "Operator";
     private final String DELETE = "Delete";
-    public String operations = "";
-    public String result = "";
+    public static String[] patterns = {"\\d+×\\d+","\\d+\\+\\d+","\\d+÷\\d+","\\d+-\\d+"};
+    public static String[] operators = {"×","\\+","÷","-"};
+    public static String operations = "";
+    public static String result = "";
     public CalculatorHistoryList calculatorHistoryList;
     List<HistoryData> historyDataList = new ArrayList<>();
     String dbCollectionName;
@@ -64,7 +66,16 @@ public class MainActivity extends AppCompatActivity {
         if (user != null && user.getEmail() != null) {
             dbCollectionName = user.getEmail();
         }
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        getCalculatorHistory();
+    }
+
+    private void getCalculatorHistory() {
         db.collection(CALCULATION_HISTORY)
                 .document(dbCollectionName).get()
                 .addOnCompleteListener(task -> {
@@ -74,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                                 .get(CALCULATOR_HISTORY_LIST) != null) {
                             calculatorHistoryList = new Gson()
                                     .fromJson(Objects.requireNonNull(Objects
-                                            .requireNonNull(document.getData()).get(CALCULATOR_HISTORY_LIST))
+                                                    .requireNonNull(document.getData()).get(CALCULATOR_HISTORY_LIST))
                                             .toString(), CalculatorHistoryList.class);
                             if (calculatorHistoryList != null) {
                                 calculatorHistoryListMap.put(CALCULATOR_HISTORY_LIST, calculatorHistoryList);
@@ -175,64 +186,23 @@ public class MainActivity extends AppCompatActivity {
         operations = binding.textViewOperations.getText().toString();
         String ops = operations;
 
+        if (operations.contentEquals("")) {
+            Log.d(TAG, "calculateMADS: "+ops);
+            return;
+        }
+
         if (operations.matches(".*[-+×÷]$")) {
             operations = operations.substring(0, operations.length() - 1);
         }
 
-        Pattern patternMultiply = Pattern.compile("\\d+×\\d+");
-        Pattern patternAdd = Pattern.compile("\\d+\\+\\d+");
-        Pattern patternDivide = Pattern.compile("\\d+÷\\d+");
-        Pattern patternSub = Pattern.compile("\\d+-\\d+");
-
-        Matcher matcher = patternMultiply.matcher(operations);
-        while (matcher.find()) {
-            Log.d(TAG, "calculateMADS: " + matcher.group());
-            int num1 = Integer.parseInt(matcher.group().split("×")[0]);
-            int num2 = Integer.parseInt(matcher.group().split("×")[1]);
-            int res = num1 * num2;
-            operations = operations.replace(matcher.group(), String.valueOf(res));
-            matcher = patternMultiply.matcher(operations);
-        }
-
-        Log.d(TAG, "calculateMADS: " + operations);
-        matcher = patternAdd.matcher(operations);
-        while (matcher.find()) {
-            Log.d(TAG, "calculateMADS: " + matcher.group());
-            int num1 = Integer.parseInt(matcher.group().split("\\+")[0]);
-            int num2 = Integer.parseInt(matcher.group().split("\\+")[1]);
-            int res = num1 + num2;
-            operations = operations.replace(matcher.group(), String.valueOf(res));
-            matcher = patternAdd.matcher(operations);
-        }
-
-        Log.d(TAG, "calculateMADS: " + operations);
-        matcher = patternDivide.matcher(operations);
-        while (matcher.find()) {
-            Log.d(TAG, "calculateMADS: " + matcher.group());
-            int num1 = Integer.parseInt(matcher.group().split("÷")[0]);
-            int num2 = Integer.parseInt(matcher.group().split("÷")[1]);
-            int res = Math.floorDiv(num1, num2);
-            operations = operations.replace(matcher.group(), String.valueOf(res));
-            matcher = patternDivide.matcher(operations);
-        }
-
-        Log.d(TAG, "calculateMADS: " + operations);
-        matcher = patternSub.matcher(operations);
-        while (matcher.find()) {
-            Log.d(TAG, "calculateMADS: " + matcher.group());
-            int num1 = Integer.parseInt(matcher.group().split("-")[0]);
-            int num2 = Integer.parseInt(matcher.group().split("-")[1]);
-            int res = num1 - num2;
-            operations = operations.replace(matcher.group(), String.valueOf(res));
-            matcher = patternSub.matcher(operations);
-        }
-        result = operations;
+        performMADSCalculation();
 
         if (!(historyDataList == null || historyDataList.isEmpty()) &&
                 historyDataList.size() >= 10) {
-            calculatorHistoryList.getHistoryDataList().remove(0);
-        }
-        if (historyDataList == null) {
+            while (historyDataList.size() >= 10) {
+                calculatorHistoryList.getHistoryDataList().remove(0);
+            }
+        } else if (historyDataList == null) {
             historyDataList = new ArrayList<>();
         }
         historyDataList.add(new HistoryData(ops, result));
@@ -244,6 +214,48 @@ public class MainActivity extends AppCompatActivity {
 
         binding.textViewResult.setText(result);
         processed = true;
+    }
+
+    public static void performMADSCalculation() {
+        if (operations.matches("[Ero]+.*")) {
+            result = "Error";
+            return;
+        }
+
+        for (int i=0; i<patterns.length; i++) {
+            Pattern pattern = Pattern.compile(patterns[i]);
+            Matcher matcher = pattern.matcher(operations);
+            while (matcher.find()) {
+//                Log.d(TAG, "performMADSCalculation: " + matcher.group());
+                int num1 = Integer.parseInt(matcher.group().split(operators[i])[0]);
+                int num2 = Integer.parseInt(matcher.group().split(operators[i])[1]);
+                int res;
+                switch (operators[i]) {
+                    case "×":
+                        res = num1 * num2;
+                        break;
+                    case "\\+":
+                        res = num1 + num2;
+                        break;
+                    case "÷":
+                        if (num2 == 0) {
+                            result = "Error";
+                            return;
+                        }
+                        res = Math.floorDiv(num1, num2);
+                        break;
+                    default:
+                        res = num1 - num2;
+                        break;
+                }
+                operations = operations.replace(matcher.group(), String.valueOf(res));
+                matcher = pattern.matcher(operations);
+            }
+        }
+        if (operations.matches(".*[-+×÷]$")) {
+            operations = operations.substring(0,operations.length()-1);
+        }
+        result = operations;
     }
 
     private void clearOperations() {
@@ -262,12 +274,16 @@ public class MainActivity extends AppCompatActivity {
                 binding.textViewOperations.setText(s);
                 binding.textViewResult.setText("0");
             }
-        } else if (type.contentEquals(OPERATOR) && !operations.matches(".*[-+×÷]$")
-                && !operations.contentEquals("")) {
+        } else if (type.contentEquals(OPERATOR) && !operations.contentEquals("")) {
             if (processed) {
                 operations = result;
             }
-            binding.textViewOperations.setText(operations.concat(s));
+            if (operations.matches(".*[-+×÷]$")) {
+                operations = operations.substring(0,operations.length()-1).concat(s);
+                binding.textViewOperations.setText(operations);
+            } else {
+                binding.textViewOperations.setText(operations.concat(s));
+            }
         } else if (type.contentEquals(DELETE)) {
             if (operations.length() > 1) {
                 binding.textViewOperations.setText(operations

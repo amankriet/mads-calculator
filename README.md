@@ -7,7 +7,7 @@
 2. Features
     1. Login using cloud
     2. Store last 10 operations and its results history data to cloud
-    3. Pull history data from cloud on startup
+    3. Sync history for each user using cloud db
     4. Calculate result using MADS rule
 3. Technologies
     1. Android Studio
@@ -16,7 +16,6 @@
 
 # Pending work:
 1. Unit Tests
-2. Sync history for each user using cloud db
 
 ## Demo video url 
 - https://drive.google.com/open?id=1-uxbGTl2oZq78WLgFPy0V3VQRIuJj9my&authuser=amankriet%40gmail.com&usp=drive_fs

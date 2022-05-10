@@ -9,8 +9,6 @@ import java.util.List;
 
 public class CalculatorHistoryList implements Serializable {
 
-    @SerializedName("historyDataList")
-    @Expose
     List<HistoryData> historyDataList = new ArrayList<>();
 
     public List<HistoryData> getHistoryDataList() {

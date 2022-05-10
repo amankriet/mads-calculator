@@ -33,6 +33,14 @@ public class MainActivityTest {
         operations = "6×2×3÷2+1-2+";
         MainActivity.performMADSCalculation();
         assertEquals("10", result);
+
+        operations = "6×2×3÷2+1-2+2÷0";
+        MainActivity.performMADSCalculation();
+        assertEquals("Error", result);
+
+        operations = "12÷0";
+        MainActivity.performMADSCalculation();
+        assertEquals("Error", result);
     }
 
 }

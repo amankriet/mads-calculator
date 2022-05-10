@@ -11,13 +11,15 @@ import com.amankriet.madscalculator.databinding.LayoutHistoryListBinding;
 import com.amankriet.madscalculator.models.HistoryData;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
 
-    ArrayList<HistoryData> historyDataArrayList;
-    private LayoutHistoryListBinding binding;
+    List<HistoryData> historyDataArrayList;
 
-    public HistoryAdapter(ArrayList<HistoryData> historyDataArrayList) {
+    LayoutHistoryListBinding binding;
+
+    public HistoryAdapter(List<HistoryData> historyDataArrayList) {
         this.historyDataArrayList = historyDataArrayList;
     }
 
@@ -32,8 +34,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     @Override
     public void onBindViewHolder(@NonNull HistoryAdapter.HistoryViewHolder holder, int position) {
         Log.i("HistoryAdapter", "onBindViewHolder: "+ historyDataArrayList.get(position).getOperation());
-        binding.textViewOperationsHistory.setText(historyDataArrayList.get(position).getOperation());
-        binding.textViewResultHistory.setText(historyDataArrayList.get(position).getResult());
+       holder.binding.textViewOperationsHistory.setText(historyDataArrayList.get(position).getOperation());
+       holder.binding.textViewResultHistory.setText(historyDataArrayList.get(position).getResult());
     }
 
     @Override

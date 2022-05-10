@@ -1,6 +1,6 @@
 package com.amankriet.madscalculator;
 
-import static com.amankriet.madscalculator.MainActivity.HISTORY_ARRAYLIST;
+import static com.amankriet.madscalculator.MainActivity.CALCULATOR_HISTORY_LIST;
 
 import android.os.Bundle;
 
@@ -11,9 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.amankriet.madscalculator.adapters.HistoryAdapter;
 import com.amankriet.madscalculator.databinding.ActivityHistoryBinding;
+import com.amankriet.madscalculator.models.CalculatorHistoryList;
 import com.amankriet.madscalculator.models.HistoryData;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HistoryActivity extends AppCompatActivity {
 
@@ -23,7 +25,8 @@ public class HistoryActivity extends AppCompatActivity {
 
     private ActivityHistoryBinding binding;
     HistoryAdapter historyAdapter;
-    ArrayList<HistoryData> historyDataArrayList;
+    CalculatorHistoryList calculatorHistoryList;
+    List<HistoryData> historyDataList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +38,13 @@ public class HistoryActivity extends AppCompatActivity {
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
 
-        historyDataArrayList = (ArrayList) getIntent().getParcelableArrayListExtra(HISTORY_ARRAYLIST);
+        calculatorHistoryList = (CalculatorHistoryList) getIntent()
+                .getSerializableExtra(CALCULATOR_HISTORY_LIST);
+        historyDataList = calculatorHistoryList.getHistoryDataList();
 
         setRecyclerViewLayoutManager();
 
-        historyAdapter = new HistoryAdapter(historyDataArrayList);
+        historyAdapter = new HistoryAdapter(historyDataList);
         binding.layoutContentHistory.recyclerViewHistory.setAdapter(historyAdapter);
     }
 
@@ -58,18 +63,4 @@ public class HistoryActivity extends AppCompatActivity {
         binding.layoutContentHistory.recyclerViewHistory.setLayoutManager(mLayoutManager);
         binding.layoutContentHistory.recyclerViewHistory.scrollToPosition(scrollPosition);
     }
-
-//    private void initHistory() {
-//        historyDataArrayList = new ArrayList<>();
-//        historyDataArrayList.add(new HistoryData("5+5", "10"));
-//        historyDataArrayList.add(new HistoryData("5*4", "20"));
-//        historyDataArrayList.add(new HistoryData("50÷25", "2"));
-//        historyDataArrayList.add(new HistoryData("5×6", "30"));
-//        historyDataArrayList.add(new HistoryData("5+5-2", "8"));
-//        historyDataArrayList.add(new HistoryData("5+6+2", "13"));
-//        historyDataArrayList.add(new HistoryData("5+5×2", "15"));
-//        historyDataArrayList.add(new HistoryData("5+5÷2", "5"));
-//        historyDataArrayList.add(new HistoryData("5+5+0-0", "10"));
-//        historyDataArrayList.add(new HistoryData("30+50÷2×4-3", "7"));
-//    }
 }

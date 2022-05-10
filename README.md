@@ -9,13 +9,11 @@
     2. Store last 10 operations and its results history data to cloud
     3. Sync history for each user using cloud db
     4. Calculate result using MADS rule
+    5. Unit Test Codes to verify MADS rule and Error checks
 3. Technologies
     1. Android Studio
     2. Firebase
     3. Figma
-
-# Pending work:
-1. Unit Tests
 
 ## Demo video url 
 - https://drive.google.com/open?id=1-uxbGTl2oZq78WLgFPy0V3VQRIuJj9my&authuser=amankriet%40gmail.com&usp=drive_fs

@@ -2,6 +2,8 @@ package com.amankriet.madscalculator;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -9,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.amankriet.madscalculator.databinding.ActivityMainBinding;
@@ -56,6 +59,14 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+
+        if (Build.VERSION.SDK_INT>30) {
+            ActionBar actionBar = getSupportActionBar();
+            ColorDrawable colorDrawable = new ColorDrawable(getResources().getColor(R.color.black, getTheme()));
+            if (actionBar != null) {
+                actionBar.setBackgroundDrawable(colorDrawable);
+            }
+        }
 
         mAuth = FirebaseAuth.getInstance();
         calculatorHistoryList = new CalculatorHistoryList();

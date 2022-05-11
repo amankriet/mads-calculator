@@ -22,4 +22,6 @@
 # hide the original source file name.
 -renamesourcefileattribute SourceFile
 
--printconfiguration ~/tmp/full-r8-config.txt
+-dontobfuscate
+
+-printconfiguration /tmp/full-r8-config.txt
